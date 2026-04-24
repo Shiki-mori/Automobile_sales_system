@@ -143,3 +143,56 @@ DROP DATABASE car_sales;
 ```sql
 SHOW DATABASES;
 ```
+
+### 05_trigger
+
+问题根源：sales_order 表的 vin 字段有 UNIQUE 约束，即使订单已取消，vin 也不能重复使用。
+
+解决方案：
+
+添加了触发器3 trg_release_car_on_cancel：当订单状态更新为"已取消"时，自动将车辆状态恢复为"在库"  
+修改测试脚本使用未被占用的 vin（VIN00000000000015 和 VIN00000000000016）避免 UNIQUE 约束冲突  
+添加了测试触发器3的用例，验证订单取消时车辆状态释放功能  
+注意：由于 vin 的 UNIQUE 约束，已取消的订单仍会占用该 vin，无法被新订单使用。如果需要支持 vin 重复使用，需要移除 sales_order.vin 的 UNIQUE 约束。
+
+初始设计中对销售订单表的车辆VIN设置了唯一约束，但在实际业务中，订单取消后车辆可重新销售，因此同一VIN可能对应多个订单记录。为符合业务实际，本系统移除了VIN唯一约束，并通过业务逻辑控制同一时间仅允许一个有效订单占用该车辆，从而保证数据一致性。
+
+移除约束后，新的问题：
+
+同一辆车可能被同时卖给两个人
+
+✔ 正确约束应该是：
+
+❗ 同一时间只能有一个“有效订单”占用该 VIN
+
+标准解决方式: 用 业务逻辑 / 触发器 控制
+
+规则  
+对于同一 VIN，在任意时刻最多只能存在一个状态为：
+“已创建 / 已锁定 / 已完成”的订单
+允许重复的情况  
+如果订单状态 = 已取消 → 可以再次使用 VIN
+
+推荐写法
+
+在创建订单时检查：
+
+SELECT COUNT(*)
+FROM Sales_Order
+WHERE vin = ?
+AND status IN ('已创建','已锁定');
+
+如果 > 0 → 不允许创建订单
+
+#### 触发器和测试语句冲突
+
+已修复触发器冲突问题。将原触发器拆分为两个：
+
+修改说明：
+
+触发器2 trg_set_delivery_time (BEFORE UPDATE)：在订单状态变为"已完成"前，设置 delivery_time 为当前时间
+触发器3 trg_update_inventory_on_delivery (AFTER UPDATE)：在订单状态变为"已完成"后，更新车辆状态为"已售出"
+触发器4 trg_release_car_on_cancel (AFTER UPDATE)：订单取消时释放车辆状态
+这样避免了在 AFTER UPDATE 触发器中更新正在被触发的表。
+
+原因是触发器1 trg_lock_car_on_order 只在 INSERT 时触发，而测试场景是 UPDATE 操作。需要添加一个触发器处理 UPDATE 时状态变为"已创建"的情况：

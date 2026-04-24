@@ -63,7 +63,7 @@ CREATE TABLE `sales_order` (
   `order_id` int PRIMARY KEY AUTO_INCREMENT,
   `customer_id` int NOT NULL,
   `employee_id` int NOT NULL,
-  `vin` char(17) UNIQUE NOT NULL,
+  `vin` char(17) NOT NULL,
   `total_amount` decimal(10, 2),
   `deposit` decimal(10, 2),
   `status` enum('已创建','已锁定','已完成','已取消') NOT NULL,

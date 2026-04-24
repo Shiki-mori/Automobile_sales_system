@@ -3,13 +3,7 @@
 登录mysql
 
 ```bash
-mysql -u root -p
-```
-
-输入密码：
-
-```text
-?????????
+mysql -u root
 ```
 
 ```sql
