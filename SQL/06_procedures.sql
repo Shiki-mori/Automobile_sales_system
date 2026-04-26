@@ -35,6 +35,9 @@ CREATE PROCEDURE sp_create_sales_order(
     OUT p_result_msg VARCHAR(200)
 )
 BEGIN
+    DECLARE v_car_status VARCHAR(20);
+    DECLARE v_total_amount DECIMAL(10,2);
+    
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -46,7 +49,6 @@ BEGIN
     START TRANSACTION;
     
     -- 检查车辆状态是否为"在库"
-    DECLARE v_car_status VARCHAR(20);
     SELECT status INTO v_car_status FROM car WHERE vin = p_vin;
     
     IF v_car_status != '在库' THEN
@@ -55,7 +57,6 @@ BEGIN
         SET p_result_msg = CONCAT('车辆状态异常，当前状态：', v_car_status);
     ELSE
         -- 计算总金额
-        DECLARE v_total_amount DECIMAL(10,2);
         SET v_total_amount = p_car_price + p_insurance_fee + p_tax_fee + p_service_fee + p_other_fee;
         
         -- 插入销售订单

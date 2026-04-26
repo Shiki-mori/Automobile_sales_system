@@ -6,6 +6,7 @@ USE car_sales;
 
 -- 测试1：正常创建订单（车辆状态为"在库"）
 SELECT '=== 测试1:正常创建订单 ===' AS test_case;
+-- 初始化输出参数
 SET @order_id = 0;
 SET @result_code = 0;
 SET @result_msg = '';
