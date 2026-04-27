@@ -196,3 +196,147 @@ AND status IN ('已创建','已锁定');
 这样避免了在 AFTER UPDATE 触发器中更新正在被触发的表。
 
 原因是触发器1 trg_lock_car_on_order 只在 INSERT 时触发，而测试场景是 UPDATE 操作。需要添加一个触发器处理 UPDATE 时状态变为"已创建"的情况：
+
+## 控制台应用开发
+
+### java环境准备
+
+使用sdkman切换至java 17：
+
+```bash
+sdk use java 17.0.10-tem
+```
+
+验证环境：
+
+```bash
+java -version
+javac -version
+```
+
+### JDBC 驱动
+
+Java连接MySql必须使用 JDBC 驱动。  
+方法：使用 Maven 添加依赖
+
+在pom.xml 文件中添加依赖：
+
+```xml
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.3.0</version>
+</dependency>
+```
+
+### IDE
+
+IntelliJ IDEA  
+或windsurf
+
+### 数据库连接配置
+
+写 db.properties 文件，该文件必须加入 .gitignore:
+
+```properties
+db.url=jdbc:mysql://localhost:3306/car_sales?useSSL=false&serverTimezone=UTC
+db.user=root
+db.password=你的密码
+```
+
+Java读取：
+
+```java
+Properties props = new Properties();
+FileInputStream fis = new FileInputStream("db.properties");
+props.load(fis);
+
+String url = props.getProperty("db.url");
+String user = props.getProperty("db.user");
+String password = props.getProperty("db.password");
+
+Connection conn = DriverManager.getConnection(url, user, password);
+```
+
+>优点：系统采用配置文件方式管理数据库连接信息，避免敏感信息硬编码，提高安全性与可维护性。
+
+#### 作业提交
+
+提供一个示例配置文件`db.properties`:
+
+```properties
+db.url=jdbc:mysql://localhost:3306/car_sales
+db.user=root
+db.password=your_password
+```
+
+README说明:
+
+```text
+请复制 db.properties.example 为 db.properties 并填写本地数据库密码
+```
+
+### 任务说明
+
+1. 执行普通sql查询
+2. 调用存储过程
+3. 使用事务
+
+### 目标项目结构
+
+automobile_sales_system/  
+├── SQL/  
+│   ├── 01_create_schema.sql  
+│   ├── 02_init_data.sql  
+│   ├── ...  
+│  
+├── TestCommand/  
+│   ├── 05_test_triggers.sql  
+│  
+├── app/                    ← 新增（Java项目）  
+│   ├── src/  
+│   │   └── main/java/  
+│   │       └── com/example/  
+│   │           ├── Main.java  
+│   │           ├── db/  
+│   │           │   └── DBUtil.java  
+│   │           └── service/  
+│   │               └── OrderService.java  
+│   │  
+│   ├── pom.xml             ← Maven配置  
+│   └── db.properties       ← 数据库配置  
+
+安装Maven：
+
+```bash
+sudo zypper install maven
+```
+
+在automobile_sales_system目录下执行：
+
+```bash
+mvn archetype:generate
+```
+
+Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): 2346: maven-archetype-quickstart
+
+接下来两个数字默认。（3和9）
+
+groupID：com.automobile  
+artifactID：sales_system  
+version：1.0-SNAPSHOT
+package: com.automobile
+
+加入 JDBC 依赖：
+
+编辑 pom.xml:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>8.3.0</version>
+    </dependency>
+</dependencies>
+```
