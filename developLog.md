@@ -440,3 +440,59 @@ public class DBUtil {
 mvn clean compile
 mvn exec:java -Dexec.mainClass="com.automobile.App"
 ```
+
+### 任务核心
+
+控制台驱动的数据库客户端系统。
+
+- 调用数据库（SQL查询/存储过程）
+- 展示结果
+- 保证安全（参数化）
+- 保证一致性（事务）
+
+架构：
+
+- App（菜单控制）  
+负责交互。
+- Service（业务逻辑）  
+调用存储过程、事务。
+- DAO（data access object，数据访问对象）  
+用于封装与数据库、文件或外部API等数据源交互的细节。  
+在本项目中用于存放SQL语句。
+- DBUtil（数据库连接管理）
+
+目前只有App和DBUtil。  
+先补齐项目结构。  
+在com.automobile下新增：
+
+com.automobile  
+├── db  
+│   └── DBUtil.java  
+├── dao  
+│   ├── CustomerDAO.java  
+│   ├── OrderDAO.java  
+│   ├── InventoryDAO.java  
+├── service  
+│   ├── SalesService.java  
+│   ├── InventoryService.java  
+│   ├── ReportService.java  
+├── App.java
+
+### 简化登录系统
+
+程序启动时，要求输入员工ID，将其存到全局变量中：
+
+```java
+int currentEmpId = sc.nextInt();
+```
+
+角色分流示例：
+
+```java
+String role = employeeDAO.getRole(empId);
+if ("销售顾问".equals(role)) {
+    showSalesMenu();
+} else if ("库存管理员".equals(role)) {
+    showInventoryMenu();
+}
+```
