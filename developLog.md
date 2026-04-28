@@ -293,18 +293,20 @@ automobile_sales_system/
 ├── TestCommand/  
 │   ├── 05_test_triggers.sql  
 │  
-├── app/                    ← 新增（Java项目）  
+├── sales_system/  
 │   ├── src/  
-│   │   └── main/java/  
-│   │       └── com/example/  
-│   │           ├── Main.java  
+│   │   └── main/  
+│   │       └── java/com/automobile/  
 │   │           ├── db/  
 │   │           │   └── DBUtil.java  
-│   │           └── service/  
-│   │               └── OrderService.java  
+│   │           ├── App.java  
+│   │       └── resources/  
+│   │           └── db.properties  
+│   │           └── db.properties.example  
+│   │  
+│   ├── target/  
 │   │  
 │   ├── pom.xml             ← Maven配置  
-│   └── db.properties       ← 数据库配置  
 
 安装Maven：
 
@@ -333,10 +335,108 @@ package: com.automobile
 
 ```xml
 <dependencies>
+    ...
     <dependency>
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
         <version>8.3.0</version>
     </dependency>
+    ...
 </dependencies>
+```
+
+修改`App.java`文件，替换为连接数据库测试（确保已启动mysql）：
+
+```java
+package com.example;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class App {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/car_sales?useSSL=false&serverTimezone=UTC";
+        String user = "root";
+        String password = "password";  
+
+        try {
+            Connection conn = DriverManager.getConnection(url, user, password);
+            System.out.println("数据库连接成功！");
+            conn.close();
+        } catch (Exception e) {
+            System.out.println("连接失败！");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+在`sales_system`目录下执行：
+
+```bash
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.example.App"
+```
+
+显示“数据库连接成功”。
+
+#### 将明文密码改为配置文件方式
+
+添加密码配置文件。  
+在src/main/目录下新建文件夹resources，在其下新建文件`db.properties`:
+
+```properties
+db.url=jdbc:mysql://localhost:3306/car_sales?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+db.user=root
+db.password=password
+```
+
+将该文件加入.gitignore。
+
+写读取配置的代码。单独做一个工具类来实现。创建`sales_system/src/main/java/com/example/db/DBUtil.java`:
+
+```java
+package com.example.db;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.Properties;
+import java.io.InputStream;
+
+public class DBUtil {
+
+    public static Connection getConnection() throws Exception {
+
+        // 1. 加载配置文件（从 resources 读取）
+        Properties props = new Properties();
+        InputStream is = DBUtil.class
+                .getClassLoader()
+                .getResourceAsStream("db.properties");
+
+        if (is == null) {
+            throw new RuntimeException("找不到 db.properties 文件");
+        }
+
+        props.load(is);
+
+        // 2. 读取配置
+        String url = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        // 3. 建立连接
+        return DriverManager.getConnection(url, user, password);
+    }
+}
+```
+
+修改App.java为从配置文件导入密码的形式。
+
+系统通过外部配置文件（db.properties）管理数据库连接信息，避免将敏感信息硬编码在程序中，提高了系统的安全性与可维护性。
+
+修改为com.automobile后，执行命令也需修改：
+
+```bash
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.automobile.App"
 ```
