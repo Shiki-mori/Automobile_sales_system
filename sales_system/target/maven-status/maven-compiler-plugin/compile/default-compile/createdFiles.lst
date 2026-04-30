@@ -2,6 +2,7 @@ com/automobile/dao/EmployeeDAO.class
 com/automobile/dao/CustomerDAO.class
 com/automobile/dao/CarDAO.class
 com/automobile/dao/SalesOrderDAO.class
+com/automobile/model/Employee.class
 com/automobile/App.class
 com/automobile/service/SalesOrderService.class
 com/automobile/db/DBUtil.class

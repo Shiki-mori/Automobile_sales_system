@@ -4,4 +4,5 @@
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/EmployeeDAO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/SalesOrderDAO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/db/DBUtil.java
+/home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/model/Employee.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/SalesOrderService.java
