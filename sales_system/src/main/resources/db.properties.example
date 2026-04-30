@@ -1,3 +1,3 @@
-db.url=jdbc:mysql://localhost:3306/car_sales?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+db.url=jdbc:mysql://localhost:3306/car_sales?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
 db.user=root
 db.password=password

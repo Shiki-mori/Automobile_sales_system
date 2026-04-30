@@ -9,6 +9,6 @@ public class App {
         // 调用创建销售订单功能
         SalesOrderService.createSalesOrder();
         
-        System.out.println("\n程序结束，按任意键退出...");
+        System.out.println("\n程序结束");
     }
 }

@@ -496,3 +496,17 @@ if ("销售顾问".equals(role)) {
     showInventoryMenu();
 }
 ```
+
+### 创建订单功能
+
+访问数据对象：
+
+- CustomerDAO
+- OrderDAO
+- InventoryDAO
+
+调用服务：
+
+- SalesService
+
+输出客户列表，销售人员列表，在库车辆列表。

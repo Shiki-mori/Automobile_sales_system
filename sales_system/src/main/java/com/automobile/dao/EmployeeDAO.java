@@ -22,14 +22,14 @@ public class EmployeeDAO {
             rs = pstmt.executeQuery();
             
             System.out.println("\n--- 销售顾问列表 ---");
-            System.out.printf("%-10s %-20s %-15s\n", "员工ID", "姓名", "工号");
-            System.out.println("----------------------------------------");
+            System.out.println(String.format("%-10s\t%-20s\t%-15s", "员工ID", "姓名", "工号"));
+            System.out.println("--------------------------------------------");
             
             while (rs.next()) {
                 int employeeId = rs.getInt("employee_id");
                 String name = rs.getString("name");
                 String jobNumber = rs.getString("job_number");
-                System.out.printf("%-10d %-20s %-15s\n", employeeId, name, jobNumber);
+                System.out.println(String.format("%-10d\t%-20s\t%-15s", employeeId, name, jobNumber));
             }
             
         } catch (Exception e) {

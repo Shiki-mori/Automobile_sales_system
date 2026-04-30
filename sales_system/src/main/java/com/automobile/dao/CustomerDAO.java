@@ -22,14 +22,14 @@ public class CustomerDAO {
             rs = pstmt.executeQuery();
             
             System.out.println("\n--- 客户列表 ---");
-            System.out.printf("%-10s %-20s %-15s\n", "客户ID", "姓名", "电话");
-            System.out.println("----------------------------------------");
+            System.out.println(String.format("%-10s\t%-20s\t%-15s", "客户ID", "姓名", "电话"));
+            System.out.println("---------------------------------------------------");
             
             while (rs.next()) {
                 int customerId = rs.getInt("customer_id");
                 String name = rs.getString("name");
                 String phone = rs.getString("phone");
-                System.out.printf("%-10d %-20s %-15s\n", customerId, name, phone);
+                System.out.println(String.format("%-10d\t%-20s\t%-15s", customerId, name, phone));
             }
             
         } catch (Exception e) {

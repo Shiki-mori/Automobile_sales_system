@@ -26,8 +26,8 @@ public class CarDAO {
             rs = pstmt.executeQuery();
             
             System.out.println("\n--- 在库车辆列表 ---");
-            System.out.printf("%-18s %-20s %-20s %-10s %-12s\n", "VIN码", "车型", "配置", "颜色", "售价");
-            System.out.println("------------------------------------------------------------------------");
+            System.out.println(String.format("%-18s\t%-20s\t%-20s\t%-10s\t%-12s", "VIN码", "车型", "配置", "颜色", "售价"));
+            System.out.println("-------------------------------------------------------------------------------------------------");
             
             while (rs.next()) {
                 String vin = rs.getString("vin");
@@ -35,7 +35,7 @@ public class CarDAO {
                 String configName = rs.getString("config_name");
                 String color = rs.getString("color");
                 double salePrice = rs.getDouble("sale_price");
-                System.out.printf("%-18s %-20s %-20s %-10s %-12.2f\n", vin, seriesName, configName, color, salePrice);
+                System.out.println(String.format("%-18s\t%-20s\t%-20s\t%-10s\t%-12.2f", vin, seriesName, configName, color, salePrice));
             }
             
         } catch (Exception e) {
