@@ -1,20 +1,24 @@
+// 创建销售订单功能
 package com.automobile.service;
 
 import com.automobile.dao.CarDAO;
 import com.automobile.dao.CustomerDAO;
-import com.automobile.dao.EmployeeDAO;
 import com.automobile.dao.SalesOrderDAO;
+import com.automobile.model.Employee;
 import java.util.Scanner;
 
 public class SalesOrderService {
 
-    private static Scanner scanner = new Scanner(System.in);
-
     /**
      * 创建销售订单的交互界面
      */
-    public static void createSalesOrder() {
+    public static void createSalesOrder(Scanner scanner, Employee employee) {
         System.out.println("\n========== 创建销售订单 ==========");
+        
+        // 使用当前登录员工作为销售顾问
+        int employeeId = employee.getEmployeeId();
+        String employeeName = employee.getName();
+        System.out.println("销售顾问: " + employeeName + " (ID: " + employeeId + ")");
         
         // 1. 显示客户列表并选择客户
         CustomerDAO.listAllCustomers();
@@ -29,20 +33,7 @@ public class SalesOrderService {
         }
         System.out.println("已选择客户: " + customerName);
         
-        // 2. 显示销售顾问列表并选择销售顾问
-        EmployeeDAO.listSalesEmployees();
-        System.out.print("\n请输入销售顾问ID: ");
-        int employeeId = scanner.nextInt();
-        scanner.nextLine(); // 消耗换行符
-        
-        String employeeName = EmployeeDAO.getEmployeeName(employeeId);
-        if (employeeName == null) {
-            System.out.println("错误：员工ID不存在！");
-            return;
-        }
-        System.out.println("已选择销售顾问: " + employeeName);
-        
-        // 3. 显示在库车辆列表并选择车辆
+        // 2. 显示在库车辆列表并选择车辆
         CarDAO.listAvailableCars();
         System.out.print("\n请输入车辆VIN码: ");
         String vin = scanner.nextLine().trim();
@@ -54,7 +45,7 @@ public class SalesOrderService {
         }
         System.out.println("已选择车辆: " + carInfo);
         
-        // 4. 输入费用信息
+        // 3. 输入费用信息
         System.out.println("\n请输入费用信息：");
         System.out.print("车辆价格: ");
         double carPrice = scanner.nextDouble();
@@ -99,7 +90,7 @@ public class SalesOrderService {
         }
         scanner.nextLine(); // 消耗换行符
         
-        // 5. 调用DAO创建订单
+        // 4. 调用DAO创建订单
         System.out.println("\n正在创建订单...");
         int[] result = SalesOrderDAO.createSalesOrder(
             customerId, employeeId, vin,
@@ -107,7 +98,7 @@ public class SalesOrderService {
             serviceFee, otherFee, deposit
         );
         
-        // 6. 显示结果
+        // 5. 显示结果
         int orderId = result[0];
         int resultCode = result[1];
         

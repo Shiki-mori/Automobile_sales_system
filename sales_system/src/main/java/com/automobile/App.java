@@ -2,6 +2,7 @@ package com.automobile;
 
 import com.automobile.dao.EmployeeDAO;
 import com.automobile.model.Employee;
+import com.automobile.service.SalesOrderService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.util.Scanner;
 
@@ -80,7 +81,7 @@ public class App {
                     System.out.println("功能：创建意向客户（待实现）");
                     break;
                 case "2":
-                    System.out.println("功能：创建销售订单（待实现，需调用存储过程sp_create_sales_order）");
+                    SalesOrderService.createSalesOrder(scanner, employee);
                     break;
                 case "3":
                     System.out.println("功能：查询我的订单（待实现）");
