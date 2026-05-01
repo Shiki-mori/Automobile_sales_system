@@ -141,30 +141,31 @@ public class InventoryQueryService {
     }
 
     /**
-     * 显示库存预警报表
+     * 显示库存预警报表（基于Q7查询优化）
      */
     private static void displayInventoryAlerts(List<CarDAO.InventoryAlert> alerts) {
-        System.out.println("\n--- 库存预警详情 ---");
-        System.out.println(String.format("%-8s\t%-12s\t%-20s\t%-20s\t%-8s\t%-8s\t%-8s\t%-8s\t%-8s\t%-8s", 
-                "车型ID", "品牌", "车系", "配置", "安全库存", "在库", "已锁定", "在途", "总数", "缺货"));
-        System.out.println("------------------------------------------------------------------------------------------------------------");
+        System.out.println("\n--- 库存预警详情（基于Q7查询） ---");
+        System.out.println(String.format("%-8s\t%-24s\t%-20s\t%-8s\t%-20s\t%-8s\t%-8s\t%-8s\t%-8s\t%-8s\t%-8s\t%-8s", 
+                "车型ID", "品牌", "车系", "年款", "配置", "指导价", "安全库存", "在库", "已锁定", "在途", "总数", "缺货"));
+        System.out.println("------------------------------------------------------------------------------------------------------------------------");
         
         for (CarDAO.InventoryAlert alert : alerts) {
             String status = alert.availableCount == 0 ? "⚠️ 严重" : "⚠️ 预警";
-            System.out.println(String.format("%-8d\t%-12s\t%-20s\t%-20s\t%-8d\t%-8d\t%-8d\t%-8d\t%-8d\t%-8d %s", 
-                    alert.modelId, alert.brandName, alert.seriesName, alert.configName, 
-                    alert.safeStock, alert.availableCount, alert.lockedCount, alert.inTransitCount, 
+            System.out.println(String.format("%-8d\t%-24s\t%-20s\t%-8d\t%-20s\t%-8.2f\t%-8d\t%-8d\t%-8d\t%-8d\t%-8d\t%-8d %s", 
+                    alert.modelId, alert.brandName, alert.seriesName, alert.year, alert.configName, 
+                    alert.guidePrice, alert.safeStock, alert.availableCount, alert.lockedCount, alert.inTransitCount, 
                     alert.totalCount, alert.shortage, status));
         }
         
-        System.out.println("------------------------------------------------------------------------------------------------------------");
-        System.out.println("⚠️ 共有 " + alerts.size() + " 个车型需要补货");
+        System.out.println("------------------------------------------------------------------------------------------------------------------------");
+        System.out.println("⚠️ 共有 " + alerts.size() + " 个车型需要补货（基于Q7查询结果）");
         
         // 显示统计信息
         System.out.println("\n--- 预警统计 ---");
         int severeAlerts = 0;
         int warningAlerts = 0;
         int totalShortage = 0;
+        double totalGuidePrice = 0;
         
         for (CarDAO.InventoryAlert alert : alerts) {
             if (alert.availableCount == 0) {
@@ -173,10 +174,21 @@ public class InventoryQueryService {
                 warningAlerts++;
             }
             totalShortage += alert.shortage;
+            totalGuidePrice += alert.guidePrice;
         }
         
         System.out.println("严重缺货（0辆）: " + severeAlerts + " 个车型");
         System.out.println("库存预警: " + warningAlerts + " 个车型");
         System.out.println("总缺货数量: " + totalShortage + " 辆");
+        System.out.println("平均指导价: " + String.format("%.2f", totalGuidePrice / alerts.size()));
+        
+        // 业务建议
+        System.out.println("\n--- 业务建议 ---");
+        if (severeAlerts > 0) {
+            System.out.println("🚨 紧急建议：立即采购 " + severeAlerts + " 个严重缺货车型的车辆");
+        }
+        if (warningAlerts > 0) {
+            System.out.println("⚠️ 建议关注： " + warningAlerts + " 个车型库存偏低，建议适时补货");
+        }
     }
 }

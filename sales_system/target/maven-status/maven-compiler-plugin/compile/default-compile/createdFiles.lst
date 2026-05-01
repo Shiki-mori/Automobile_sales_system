@@ -1,7 +1,10 @@
 com/automobile/dao/EmployeeDAO.class
 com/automobile/model/Employee.class
+com/automobile/service/InventoryQueryService.class
 com/automobile/service/SalesOrderService.class
+com/automobile/dao/CarDAO$InventoryAlert.class
 com/automobile/dao/SalesOrderDAO$OrderInfo.class
+com/automobile/dao/CarDAO$CarSearchResult.class
 com/automobile/service/IntentionService.class
 com/automobile/dao/SalesOrderDAO$OrderItem.class
 com/automobile/service/OrderQueryService.class

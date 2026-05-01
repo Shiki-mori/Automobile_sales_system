@@ -403,7 +403,7 @@ public class CarDAO {
     }
 
     /**
-     * 查询库存预警报表
+     * 查询库存预警报表（基于Q7查询，暂时使用硬编码安全库存）
      */
     public static List<InventoryAlert> getInventoryAlert() {
         Connection conn = null;
@@ -413,17 +413,26 @@ public class CarDAO {
         
         try {
             conn = DBUtil.getConnection();
-            String sql = "SELECT m.model_id, b.name as brand_name, m.series_name, m.config_name, m.safe_stock, " +
-                        "COUNT(CASE WHEN c.status = '在库' THEN 1 END) as available_count, " +
-                        "COUNT(CASE WHEN c.status = '已锁定' THEN 1 END) as locked_count, " +
-                        "COUNT(CASE WHEN c.status = '在途' THEN 1 END) as in_transit_count, " +
-                        "COUNT(*) as total_count " +
+            // 基于Q7查询，使用硬编码安全库存阈值3（与Q7保持一致）
+            String sql = "SELECT " +
+                        "m.model_id, " +
+                        "b.name AS brand_name, " +
+                        "m.series_name, " +
+                        "m.year, " +
+                        "m.config_name, " +
+                        "m.guide_price, " +
+                        "3 AS safe_stock, " +
+                        "COUNT(CASE WHEN c.status = '在库' THEN 1 END) AS current_stock, " +
+                        "COUNT(CASE WHEN c.status = '已锁定' THEN 1 END) AS locked_count, " +
+                        "COUNT(CASE WHEN c.status = '在途' THEN 1 END) AS in_transit_count, " +
+                        "COUNT(*) AS total_count, " +
+                        "3 - COUNT(CASE WHEN c.status = '在库' THEN 1 END) AS shortage_quantity " +
                         "FROM model m " +
-                        "LEFT JOIN brand b ON m.brand_id = b.brand_id " +
+                        "JOIN brand b ON m.brand_id = b.brand_id " +
                         "LEFT JOIN car c ON m.model_id = c.model_id " +
-                        "GROUP BY m.model_id, b.name, m.series_name, m.config_name, m.safe_stock " +
-                        "HAVING available_count < m.safe_stock OR available_count = 0 " +
-                        "ORDER BY available_count ASC";
+                        "GROUP BY m.model_id, b.name, m.series_name, m.year, m.config_name, m.guide_price " +
+                        "HAVING COUNT(CASE WHEN c.status = '在库' THEN 1 END) < 3 " +
+                        "ORDER BY shortage_quantity DESC";
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
             
@@ -432,13 +441,15 @@ public class CarDAO {
                 alert.modelId = rs.getInt("model_id");
                 alert.brandName = rs.getString("brand_name");
                 alert.seriesName = rs.getString("series_name");
+                alert.year = rs.getInt("year");
                 alert.configName = rs.getString("config_name");
+                alert.guidePrice = rs.getDouble("guide_price");
                 alert.safeStock = rs.getInt("safe_stock");
-                alert.availableCount = rs.getInt("available_count");
+                alert.availableCount = rs.getInt("current_stock");
                 alert.lockedCount = rs.getInt("locked_count");
                 alert.inTransitCount = rs.getInt("in_transit_count");
                 alert.totalCount = rs.getInt("total_count");
-                alert.shortage = alert.safeStock - alert.availableCount;
+                alert.shortage = rs.getInt("shortage_quantity");
                 alerts.add(alert);
             }
             
@@ -474,13 +485,15 @@ public class CarDAO {
     }
 
     /**
-     * 库存预警数据类
+     * 库存预警数据类（基于Q7查询优化）
      */
     public static class InventoryAlert {
         public int modelId;
         public String brandName;
         public String seriesName;
+        public int year;
         public String configName;
+        public double guidePrice;
         public int safeStock;
         public int availableCount;
         public int lockedCount;
