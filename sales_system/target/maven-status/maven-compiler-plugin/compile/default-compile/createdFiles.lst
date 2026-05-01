@@ -9,5 +9,6 @@ com/automobile/dao/CustomerDAO.class
 com/automobile/dao/IntentionDAO.class
 com/automobile/dao/CarDAO.class
 com/automobile/dao/SalesOrderDAO.class
+com/automobile/service/InventoryService.class
 com/automobile/App.class
 com/automobile/db/DBUtil.class

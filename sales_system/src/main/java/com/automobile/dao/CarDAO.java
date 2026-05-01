@@ -4,6 +4,9 @@ import com.automobile.db.DBUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CarDAO {
 
@@ -182,5 +185,307 @@ public class CarDAO {
         }
         
         return info;
+    }
+
+    /**
+     * 检查VIN码是否已存在
+     */
+    public static boolean checkVinExists(String vin) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean exists = false;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT vin FROM car WHERE vin = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, vin);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                exists = true;
+            }
+            
+        } catch (Exception e) {
+            System.out.println("检查VIN码失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return exists;
+    }
+
+    /**
+     * 检查发动机号是否已存在
+     */
+    public static boolean checkEngineNoExists(String engineNo) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean exists = false;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT engine_no FROM car WHERE engine_no = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, engineNo);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                exists = true;
+            }
+            
+        } catch (Exception e) {
+            System.out.println("检查发动机号失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return exists;
+    }
+
+    /**
+     * 创建车辆记录
+     */
+    public static boolean createCar(String vin, int modelId, String color, String engineNo, 
+                                   String productionDate, double purchasePrice, double salePrice) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean success = false;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "INSERT INTO car (vin, model_id, color, engine_no, production_date, stock_in_date, purchase_price, sale_price, status) " +
+                        "VALUES (?, ?, ?, ?, ?, CURDATE(), ?, ?, '在库')";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, vin);
+            pstmt.setInt(2, modelId);
+            pstmt.setString(3, color);
+            pstmt.setString(4, engineNo);
+            pstmt.setString(5, productionDate);
+            pstmt.setDouble(6, purchasePrice);
+            pstmt.setDouble(7, salePrice);
+            
+            int rows = pstmt.executeUpdate();
+            success = rows > 0;
+            
+        } catch (Exception e) {
+            System.out.println("创建车辆记录失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
+    }
+
+    /**
+     * 多条件动态查询车辆库存
+     */
+    public static List<CarSearchResult> searchCars(String brandName, String seriesName, String color, 
+                                                  String status, Double minPrice, Double maxPrice, String vin) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<CarSearchResult> cars = new ArrayList<>();
+        
+        try {
+            conn = DBUtil.getConnection();
+            
+            // 构建动态SQL
+            StringBuilder sql = new StringBuilder(
+                "SELECT c.vin, b.name as brand_name, m.series_name, m.config_name, " +
+                "c.color, c.purchase_price, c.sale_price, c.status, c.stock_in_date " +
+                "FROM car c " +
+                "JOIN model m ON c.model_id = m.model_id " +
+                "JOIN brand b ON m.brand_id = b.brand_id " +
+                "WHERE 1=1 "
+            );
+            
+            List<Object> params = new ArrayList<>();
+            
+            if (brandName != null && !brandName.isEmpty()) {
+                sql.append("AND b.name LIKE ? ");
+                params.add("%" + brandName + "%");
+            }
+            
+            if (seriesName != null && !seriesName.isEmpty()) {
+                sql.append("AND m.series_name LIKE ? ");
+                params.add("%" + seriesName + "%");
+            }
+            
+            if (color != null && !color.isEmpty()) {
+                sql.append("AND c.color LIKE ? ");
+                params.add("%" + color + "%");
+            }
+            
+            if (status != null && !status.isEmpty()) {
+                sql.append("AND c.status = ? ");
+                params.add(status);
+            }
+            
+            if (minPrice != null) {
+                sql.append("AND c.sale_price >= ? ");
+                params.add(minPrice);
+            }
+            
+            if (maxPrice != null) {
+                sql.append("AND c.sale_price <= ? ");
+                params.add(maxPrice);
+            }
+            
+            if (vin != null && !vin.isEmpty()) {
+                sql.append("AND c.vin LIKE ? ");
+                params.add("%" + vin + "%");
+            }
+            
+            sql.append("ORDER BY c.stock_in_date DESC");
+            
+            pstmt = conn.prepareStatement(sql.toString());
+            
+            // 设置参数
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+            
+            rs = pstmt.executeQuery();
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            
+            while (rs.next()) {
+                CarSearchResult car = new CarSearchResult();
+                car.vin = rs.getString("vin");
+                car.brandName = rs.getString("brand_name");
+                car.seriesName = rs.getString("series_name");
+                car.configName = rs.getString("config_name");
+                car.color = rs.getString("color");
+                car.purchasePrice = rs.getDouble("purchase_price");
+                car.salePrice = rs.getDouble("sale_price");
+                car.status = rs.getString("status");
+                car.stockInDate = dateFormat.format(rs.getDate("stock_in_date"));
+                cars.add(car);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询车辆库存失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return cars;
+    }
+
+    /**
+     * 查询库存预警报表
+     */
+    public static List<InventoryAlert> getInventoryAlert() {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<InventoryAlert> alerts = new ArrayList<>();
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT m.model_id, b.name as brand_name, m.series_name, m.config_name, m.safe_stock, " +
+                        "COUNT(CASE WHEN c.status = '在库' THEN 1 END) as available_count, " +
+                        "COUNT(CASE WHEN c.status = '已锁定' THEN 1 END) as locked_count, " +
+                        "COUNT(CASE WHEN c.status = '在途' THEN 1 END) as in_transit_count, " +
+                        "COUNT(*) as total_count " +
+                        "FROM model m " +
+                        "LEFT JOIN brand b ON m.brand_id = b.brand_id " +
+                        "LEFT JOIN car c ON m.model_id = c.model_id " +
+                        "GROUP BY m.model_id, b.name, m.series_name, m.config_name, m.safe_stock " +
+                        "HAVING available_count < m.safe_stock OR available_count = 0 " +
+                        "ORDER BY available_count ASC";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                InventoryAlert alert = new InventoryAlert();
+                alert.modelId = rs.getInt("model_id");
+                alert.brandName = rs.getString("brand_name");
+                alert.seriesName = rs.getString("series_name");
+                alert.configName = rs.getString("config_name");
+                alert.safeStock = rs.getInt("safe_stock");
+                alert.availableCount = rs.getInt("available_count");
+                alert.lockedCount = rs.getInt("locked_count");
+                alert.inTransitCount = rs.getInt("in_transit_count");
+                alert.totalCount = rs.getInt("total_count");
+                alert.shortage = alert.safeStock - alert.availableCount;
+                alerts.add(alert);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询库存预警失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return alerts;
+    }
+
+    /**
+     * 车辆搜索结果数据类
+     */
+    public static class CarSearchResult {
+        public String vin;
+        public String brandName;
+        public String seriesName;
+        public String configName;
+        public String color;
+        public double purchasePrice;
+        public double salePrice;
+        public String status;
+        public String stockInDate;
+    }
+
+    /**
+     * 库存预警数据类
+     */
+    public static class InventoryAlert {
+        public int modelId;
+        public String brandName;
+        public String seriesName;
+        public String configName;
+        public int safeStock;
+        public int availableCount;
+        public int lockedCount;
+        public int inTransitCount;
+        public int totalCount;
+        public int shortage;
     }
 }

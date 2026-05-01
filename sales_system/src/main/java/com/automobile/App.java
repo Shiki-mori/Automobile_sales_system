@@ -2,6 +2,8 @@ package com.automobile;
 
 import com.automobile.dao.EmployeeDAO;
 import com.automobile.model.Employee;
+import com.automobile.service.InventoryQueryService;
+import com.automobile.service.InventoryService;
 import com.automobile.service.IntentionService;
 import com.automobile.service.OrderQueryService;
 import com.automobile.service.SalesOrderService;
@@ -32,7 +34,7 @@ public class App {
             System.exit(0);
         }
         
-        System.out.println("\n登录成功！");
+        System.out.println("\n登录成功!");
         System.out.println("欢迎, " + employee.getName() + " (" + employee.getRole() + " - " + employee.getDepartment() + ")");
         
         // 根据职责进入不同菜单
@@ -127,13 +129,13 @@ public class App {
             
             switch (choice) {
                 case "1":
-                    System.out.println("功能: 车辆入库（待实现）");
+                    InventoryService.addCarToInventory(scanner, employee);
                     break;
                 case "2":
-                    System.out.println("功能: 查询车辆库存（待实现，支持多条件筛选）");
+                    InventoryQueryService.queryCarInventory(scanner, employee);
                     break;
                 case "3":
-                    System.out.println("功能: 查看库存预警报表（待实现, 对应需求Q7）");
+                    InventoryQueryService.showInventoryAlert(scanner, employee);
                     break;
                 case "4":
                     System.out.println("功能: 查询销售业绩榜（待实现, 对应需求Q2）");
