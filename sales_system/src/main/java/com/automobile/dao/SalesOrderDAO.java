@@ -3,7 +3,12 @@ package com.automobile.dao;
 import com.automobile.db.DBUtil;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SalesOrderDAO {
 
@@ -77,5 +82,203 @@ public class SalesOrderDAO {
         }
         
         return result;
+    }
+
+    /**
+     * 查询指定员工的订单列表
+     */
+    public static List<OrderInfo> getOrdersByEmployee(int employeeId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<OrderInfo> orders = new ArrayList<>();
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT o.order_id, c.name as customer_name, o.vin, " +
+                        "m.series_name, m.config_name, car.color, o.total_amount, " +
+                        "o.deposit, o.status, o.create_time, o.delivery_time " +
+                        "FROM sales_order o " +
+                        "JOIN customer c ON o.customer_id = c.customer_id " +
+                        "JOIN car car ON o.vin = car.vin " +
+                        "JOIN model m ON car.model_id = m.model_id " +
+                        "WHERE o.employee_id = ? " +
+                        "ORDER BY o.create_time DESC";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, employeeId);
+            rs = pstmt.executeQuery();
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            
+            while (rs.next()) {
+                OrderInfo order = new OrderInfo();
+                order.orderId = rs.getInt("order_id");
+                order.customerName = rs.getString("customer_name");
+                order.vin = rs.getString("vin");
+                order.seriesName = rs.getString("series_name");
+                order.configName = rs.getString("config_name");
+                order.color = rs.getString("color");
+                order.totalAmount = rs.getDouble("total_amount");
+                order.deposit = rs.getDouble("deposit");
+                order.status = rs.getString("status");
+                order.createTime = dateFormat.format(rs.getTimestamp("create_time"));
+                
+                java.sql.Timestamp deliveryTime = rs.getTimestamp("delivery_time");
+                if (deliveryTime != null) {
+                    order.deliveryTime = dateFormat.format(deliveryTime);
+                } else {
+                    order.deliveryTime = "";
+                }
+                
+                orders.add(order);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询订单列表失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return orders;
+    }
+
+    /**
+     * 根据订单ID查询订单详细信息
+     */
+    public static OrderInfo getOrderById(int orderId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        OrderInfo order = null;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT o.order_id, c.name as customer_name, o.vin, " +
+                        "m.series_name, m.config_name, car.color, o.total_amount, " +
+                        "o.deposit, o.status, o.create_time, o.delivery_time " +
+                        "FROM sales_order o " +
+                        "JOIN customer c ON o.customer_id = c.customer_id " +
+                        "JOIN car car ON o.vin = car.vin " +
+                        "JOIN model m ON car.model_id = m.model_id " +
+                        "WHERE o.order_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+            rs = pstmt.executeQuery();
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            
+            if (rs.next()) {
+                order = new OrderInfo();
+                order.orderId = rs.getInt("order_id");
+                order.customerName = rs.getString("customer_name");
+                order.vin = rs.getString("vin");
+                order.seriesName = rs.getString("series_name");
+                order.configName = rs.getString("config_name");
+                order.color = rs.getString("color");
+                order.totalAmount = rs.getDouble("total_amount");
+                order.deposit = rs.getDouble("deposit");
+                order.status = rs.getString("status");
+                order.createTime = dateFormat.format(rs.getTimestamp("create_time"));
+                
+                java.sql.Timestamp deliveryTime = rs.getTimestamp("delivery_time");
+                if (deliveryTime != null) {
+                    order.deliveryTime = dateFormat.format(deliveryTime);
+                } else {
+                    order.deliveryTime = "";
+                }
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询订单详情失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return order;
+    }
+
+    /**
+     * 查询订单明细信息
+     */
+    public static List<OrderItem> getOrderItems(int orderId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<OrderItem> items = new ArrayList<>();
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT item_id, type, description, amount " +
+                        "FROM order_item " +
+                        "WHERE order_id = ? " +
+                        "ORDER BY item_id";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, orderId);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                OrderItem item = new OrderItem();
+                item.itemId = rs.getInt("item_id");
+                item.type = rs.getString("type");
+                item.description = rs.getString("description");
+                item.amount = rs.getDouble("amount");
+                items.add(item);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询订单明细失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return items;
+    }
+
+    /**
+     * 订单信息数据类
+     */
+    public static class OrderInfo {
+        public int orderId;
+        public String customerName;
+        public String vin;
+        public String seriesName;
+        public String configName;
+        public String color;
+        public double totalAmount;
+        public double deposit;
+        public String status;
+        public String createTime;
+        public String deliveryTime;
+    }
+
+    /**
+     * 订单明细数据类
+     */
+    public static class OrderItem {
+        public int itemId;
+        public String type;
+        public String description;
+        public double amount;
     }
 }

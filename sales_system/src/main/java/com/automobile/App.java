@@ -3,6 +3,7 @@ package com.automobile;
 import com.automobile.dao.EmployeeDAO;
 import com.automobile.model.Employee;
 import com.automobile.service.IntentionService;
+import com.automobile.service.OrderQueryService;
 import com.automobile.service.SalesOrderService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.util.Scanner;
@@ -85,7 +86,7 @@ public class App {
                     SalesOrderService.createSalesOrder(scanner, employee);
                     break;
                 case "3":
-                    System.out.println("功能：查询我的订单（待实现）");
+                    OrderQueryService.queryMyOrders(scanner, employee);
                     break;
                 case "4":
                     System.out.println("退出登录");
