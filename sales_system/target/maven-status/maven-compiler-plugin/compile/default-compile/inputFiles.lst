@@ -3,11 +3,14 @@
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/CustomerDAO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/EmployeeDAO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/IntentionDAO.java
+/home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/ReportDAO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/dao/SalesOrderDAO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/db/DBUtil.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/model/Employee.java
+/home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/model/ReportDTO.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/IntentionService.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/InventoryQueryService.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/InventoryService.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/OrderQueryService.java
+/home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/ReportService.java
 /home/phrolova/Learning/数据库系统/course_design/automobile_sales_system/sales_system/src/main/java/com/automobile/service/SalesOrderService.java

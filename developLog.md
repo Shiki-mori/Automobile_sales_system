@@ -575,6 +575,27 @@ if ("销售顾问".equals(role)) {
 
 ### 查询销售业绩榜
 
+利用现有的`v_sales_performance`视图
+
 ### 查询畅销车型排行
 
 ### 生成月度销售统计
+
+调用`sp_get_monthly_report`存储过程，解析存储过程返回的多个结果集，整合数据生成综合报表。
+
+```text
+ReportService.java          # 报表服务主类
+├── querySalesPerformance() # 销售业绩榜
+├── queryBestSellingModels() # 畅销车型排行  
+└── generateMonthlyReport() # 月度统计报表
+
+ReportDAO.java              # 报表数据访问层
+├── getSalesPerformance()   # 查询业绩数据
+├── getBestSellingModels()  # 查询畅销车型
+└── callMonthlyReport()     # 调用月度报表存储过程
+
+ReportDTO.java              # 报表数据传输对象
+├── SalesPerformanceDTO     # 业绩数据
+├── ModelSalesDTO           # 车型销售数据
+└── MonthlyReportDTO        # 月度报表数据
+```

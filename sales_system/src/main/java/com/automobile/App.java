@@ -6,6 +6,7 @@ import com.automobile.service.InventoryQueryService;
 import com.automobile.service.InventoryService;
 import com.automobile.service.IntentionService;
 import com.automobile.service.OrderQueryService;
+import com.automobile.service.ReportService;
 import com.automobile.service.SalesOrderService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.util.Scanner;
@@ -138,13 +139,13 @@ public class App {
                     InventoryQueryService.showInventoryAlert(scanner, employee);
                     break;
                 case "4":
-                    System.out.println("功能: 查询销售业绩榜（待实现, 对应需求Q2）");
+                    ReportService.querySalesPerformance(scanner, employee);
                     break;
                 case "5":
-                    System.out.println("功能: 查询畅销车型排行（待实现, 对应需求Q3）");
+                    ReportService.queryBestSellingModels(scanner, employee);
                     break;
                 case "6":
-                    System.out.println("功能: 生成月度销售统计（待实现, 需调用存储过程sp_get_monthly_report）");
+                    ReportService.generateMonthlyReport(scanner, employee);
                     break;
                 case "7":
                     System.out.println("退出登录");
