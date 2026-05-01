@@ -2,6 +2,7 @@ package com.automobile;
 
 import com.automobile.dao.EmployeeDAO;
 import com.automobile.model.Employee;
+import com.automobile.service.IntentionService;
 import com.automobile.service.SalesOrderService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.util.Scanner;
@@ -78,7 +79,7 @@ public class App {
             
             switch (choice) {
                 case "1":
-                    System.out.println("功能：创建意向客户（待实现）");
+                    IntentionService.createIntentionCustomer(scanner, employee);
                     break;
                 case "2":
                     SalesOrderService.createSalesOrder(scanner, employee);

@@ -94,4 +94,93 @@ public class CarDAO {
         
         return info;
     }
+
+    /**
+     * 查询所有车型
+     */
+    public static void listModels() {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT m.model_id, b.name as brand_name, m.series_name, m.year, m.config_name, m.guide_price " +
+                        "FROM model m " +
+                        "JOIN brand b ON m.brand_id = b.brand_id " +
+                        "ORDER BY m.model_id";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            System.out.println("\n--- 车型列表 ---");
+            System.out.println(String.format("%-10s\t%-15s\t%-20s\t%-8s\t%-20s\t%-12s", "车型ID", "品牌", "车系", "年款", "配置", "指导价"));
+            System.out.println("----------------------------------------------------------------------------------------");
+            
+            while (rs.next()) {
+                int modelId = rs.getInt("model_id");
+                String brandName = rs.getString("brand_name");
+                String seriesName = rs.getString("series_name");
+                int year = rs.getInt("year");
+                String configName = rs.getString("config_name");
+                double guidePrice = rs.getDouble("guide_price");
+                System.out.println(String.format("%-10d\t%-15s\t%-20s\t%-8d\t%-20s\t%-12.2f", modelId, brandName, seriesName, year, configName, guidePrice));
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询车型列表失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 根据车型ID查询车型信息
+     */
+    public static String getModelInfo(int modelId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String info = null;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT b.name as brand_name, m.series_name, m.year, m.config_name, m.guide_price " +
+                        "FROM model m " +
+                        "JOIN brand b ON m.brand_id = b.brand_id " +
+                        "WHERE m.model_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, modelId);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                String brandName = rs.getString("brand_name");
+                String seriesName = rs.getString("series_name");
+                int year = rs.getInt("year");
+                String configName = rs.getString("config_name");
+                double guidePrice = rs.getDouble("guide_price");
+                info = brandName + " " + seriesName + " " + year + "款 " + configName + " (指导价: " + guidePrice + ")";
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询车型失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return info;
+    }
 }

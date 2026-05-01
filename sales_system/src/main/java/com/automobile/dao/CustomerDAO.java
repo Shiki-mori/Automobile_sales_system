@@ -81,4 +81,82 @@ public class CustomerDAO {
         
         return name;
     }
+
+    /**
+     * 根据手机号查询客户ID
+     */
+    public static Integer getCustomerIdByPhone(String phone) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Integer customerId = null;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "SELECT customer_id FROM customer WHERE phone = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, phone);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                customerId = rs.getInt("customer_id");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("查询客户失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return customerId;
+    }
+
+    /**
+     * 创建新客户
+     */
+    public static int createCustomer(String name, String gender, String phone, String idCard, String address) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int customerId = -1;
+        
+        try {
+            conn = DBUtil.getConnection();
+            String sql = "INSERT INTO customer (name, gender, phone, id_card, address, first_visit_date) " +
+                        "VALUES (?, ?, ?, ?, ?, CURDATE())";
+            pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, name);
+            pstmt.setString(2, gender);
+            pstmt.setString(3, phone);
+            pstmt.setString(4, idCard);
+            pstmt.setString(5, address);
+            pstmt.executeUpdate();
+            
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                customerId = rs.getInt(1);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("创建客户失败！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return customerId;
+    }
 }
