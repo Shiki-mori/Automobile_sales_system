@@ -1,2 +1,3 @@
 ignore/
 sales_system/src/main/resources/db.properties
+sales_system/target/
