@@ -46,6 +46,14 @@ cd dbeaver
 ./dbeaver
 ```
 
+创建软链接来实现全局启动：
+
+```bash
+sudo ln -s /home/phrolova/下载/dbeaver/dbeaver /usr/local/bin/dbeaver
+```
+
+之后在任意目录运行`dbeaver`启动。
+
 ### MySQL 配置
 
 登录mysql：
@@ -599,3 +607,29 @@ ReportDTO.java              # 报表数据传输对象
 ├── ModelSalesDTO           # 车型销售数据
 └── MonthlyReportDTO        # 月度报表数据
 ```
+
+## 使用dbeaver
+
+运行`dbeaver`命令启动dbeaver。
+
+### 创建数据库连接
+
+左上角插头图标 新建数据库连接，选择数据库类型为MySQL。
+
+连接方式主机。该方式下URL不可选。  
+服务器地址localhost，  
+端口3306，  
+数据库car_sales，  
+用户名root，  
+密码 ***
+
+点击测试连接。  
+
+报错：`Public Key Retrieval is not allowed`  
+Mysql8.0.16以上版本默认不允许使用公钥验证，默认认证方式为 caching_sha2_password。  
+客户端需要从服务器获取公钥，但默认禁止获取。
+
+连接方式改为URL，URL填写：  
+<jdbc:mysql://localhost:3306/car_sales?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true>
+
+点击测试连接，显示已连接。
