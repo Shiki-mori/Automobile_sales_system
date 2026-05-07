@@ -3,7 +3,6 @@ package com.automobile.dao;
 import com.automobile.db.DBUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class IntentionDAO {
 
