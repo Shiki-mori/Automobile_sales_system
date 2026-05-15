@@ -162,12 +162,12 @@ public class ReportService {
      */
     private static void displaySalesPerformance(List<SalesPerformance> performanceList) {
         System.out.println("\n--- 销售业绩排行榜 ---");
-        System.out.println(String.format("%-12s\t%-12s\t%-12s\t%-8s\t%-15s\t%-15s\t%-15s\t%-12s", 
+        System.out.println(String.format("%-12s\t%-12s\t%-12s\t%-8s\t%-24s\t%-15s\t%-15s\t%-12s", 
                 "排名", "姓名", "工号", "订单数", "销售总额", "毛利润", "平均订单金额", "最后订单日期"));
         System.out.println("----------------------------------------------------------------------------------------------------------");
         
         for (SalesPerformance sp : performanceList) {
-            System.out.println(String.format("%-12d\t%-12s\t%-12s\t%-8d\t%-15.2f\t%-15.2f\t%-15.2f\t%-12s", 
+            System.out.println(String.format("%-12d\t%-12s\t%-12s\t%-8d\t%-24.2f\t%-15.2f\t%-15.2f\t%-12s", 
                     sp.getRank(), sp.getEmployeeName(), sp.getJobNumber(), sp.getTotalOrders(),
                     sp.getTotalSalesAmount(), sp.getTotalGrossProfit(), sp.getAvgOrderAmount(),
                     sp.getLastOrderDate() != null ? sp.getLastOrderDate() : "无"));

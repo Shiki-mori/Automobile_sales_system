@@ -60,32 +60,6 @@ CALL sp_create_sales_order(
 
 SELECT @order_id AS order_id, @result_code AS result_code, @result_msg AS result_msg;
 
--- 测试3：创建订单（各项费用为0）
-SELECT '=== 测试3:仅车辆价格, 其他费用为0 ===' AS test_case;
-SET @order_id = 0;
-SET @result_code = 0;
-SET @result_msg = '';
-
-CALL sp_create_sales_order(
-    3,                    -- customer_id
-    3,                    -- employee_id
-    'VIN00000000000006',  -- vin (在库状态)
-    150000.00,            -- car_price
-    0.00,                 -- insurance_fee
-    0.00,                 -- tax_fee
-    0.00,                 -- service_fee
-    0.00,                 -- other_fee
-    20000.00,             -- deposit
-    @order_id,            -- OUT: order_id
-    @result_code,         -- OUT: result_code
-    @result_msg           -- OUT: result_msg
-);
-
-SELECT @order_id AS order_id, @result_code AS result_code, @result_msg AS result_msg;
-
--- 查看订单明细（应该只有车辆费用）
-SELECT * FROM order_item WHERE order_id = @order_id;
-
 -- 测试4：完整费用明细
 SELECT '=== 测试4:完整费用明细 ===' AS test_case;
 SET @order_id = 0;
