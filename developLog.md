@@ -27,6 +27,8 @@ E-R图
 - MySQL Python驱动：pymysql
 - 数据库可视化工具（调试工具）：DBeaver
 
+后续更改为Java实现。
+
 ### 安装 pymysql
 
 ```bash
